@@ -1,0 +1,50 @@
+{
+	"CEU": 
+	{
+		"Programs": 
+		[
+		{
+			"Business Analytics": 
+			[
+			{
+				"entity": 
+				{
+					"name": "student",
+					"relationships": 
+					{
+						"teachers": "learning",
+						"coordinators": "course taking",
+						"students": "networking"
+					}
+				}
+			},
+			{
+				"entity": 
+				{
+					"name": "teachers",
+					"relationships": 
+					{
+						"teachers": "networking",
+						"coordinators": "administrating",
+						"students": "teaching"
+					}
+				}
+			},
+			{
+				"entity": 
+				{
+					"name": "coordinators",
+					"relationships": 
+					{
+						"teachers": "paying",
+						"coordinators": "organizing",
+						"students": "informing"
+					}
+				}
+			}
+				
+			]
+		}
+		]
+	}
+}
