@@ -8,8 +8,7 @@
 			{
 				"title":
 				{
-					"lang": "en",
-					"text": "Everyday Italian"
+					"en": "Everyday Italian"
 				}
 			},
 			"authors":
@@ -18,15 +17,14 @@
 			},
 			"year": 2005,
 			"price": 30.00,
-			"available": "TRUE",
+			"available": true
 		},
 		{
 			"titles":
 			{
 				"title":
 				{
-					"lang": "en",
-					"text": "Harry Potter"
+					"en": "Harry Potter"
 				}
 			},
 			"authors":
@@ -34,19 +32,17 @@
 				"author": "J K. Rowling"
 			},
 			"price": 29.99,
-			"available": "FALSE",
+			"available": false
 		},		
 		{
 			"titles": {
 				"title":
 				[
 				{
-					"lang": "en",
-					"text": "The Data Warehouse Toolkit"
+					"en": "The Data Warehouse Toolkit"
 				},
 				{
-					"lang": "hu",
-					"text": "Adattárház eszközök"				
+					"hu": "Adattárház eszközök"				
 				}
 				]
 			},
@@ -60,7 +56,7 @@
 			},
 			"year": 2002,
 			"price": 87,
-			"available": "TRUE",
+			"available": true
 		}
 		]
 	}
