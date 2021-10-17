@@ -1,0 +1,32 @@
+[sqlfluff]
+verbose = 0
+nocolor = False
+dialect = mysql
+recurse = 0
+output_line_length = 80
+runaway_limit = 10
+ignore_templated_areas = True
+allow_scalar = True
+
+[sqlfluff:rules]
+tab_space_size = 4
+max_line_length = 120
+indent_unit = space
+
+[sqlfluff:rules:L003]
+lint_templated_tokens = True
+
+[sqlfluff:rules:L010]  # Keywords
+capitalisation_policy = lower
+
+[sqlfluff:rules:L014]  # Unquoted identifiers
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:L016]
+ignore_comment_lines = False
+
+[sqlfluff:rules:L030]  # Function names
+capitalisation_policy = lower
+
+[sqlfluff:rules:L042]
+forbid_subquery_in = both
