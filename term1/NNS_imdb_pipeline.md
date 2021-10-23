@@ -55,7 +55,7 @@ All the source files can be found under `data/` and pictures presented here unde
 
 *Note: The generation saved me a significant time in defining column names and datatypes, constraint and indexes.*
 
-Having the data and table structure on my computer, I created tables with from generated schemas in my local MySQL instance with the `01_create_tables.sql` script , and loaded the local flat files with the `02_extract.sql` script. You can find these under `models/stg/`
+Having the data and table structure on my computer, I created tables with from generated schemas in my local MySQL instance with the `01_create_tables.sql` script , and loaded the local flat files with the `02_extract.sql` script. You can find these under `models/stage/`
 
 <div id='business'/>
 
@@ -209,7 +209,7 @@ Therefore, the flow is the following:
 The final for of database can be described with the following chart:
 
 <p align="center">
-<img src="./pictures/imdb_final.png" alt="drawing" width="5500">
+<img src="./pictures/imdb_final.png" alt="drawing" width="700">
 </p>
 
 <div id='dq'/>
