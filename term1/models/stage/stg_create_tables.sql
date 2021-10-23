@@ -51,8 +51,8 @@ create table movies
 (
     id int default 0 not null
     primary key,
-    name varchar(100) null,
-    year int null,
+    `name` varchar(100) null,
+    `year` int null,
     `rank` float null
 );
 

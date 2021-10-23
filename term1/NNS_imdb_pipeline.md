@@ -2,7 +2,7 @@
 
 > All files listed here can be found under my [Github repository](https://github.com/nszoni/ceu-dataeng1/tree/main/term1)
 
-# Table of contents
+## Table of contents
 
 1. [Introduction](#introduction)
 2. [Operational Layer](#operational)

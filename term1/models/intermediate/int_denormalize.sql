@@ -30,12 +30,12 @@ BEGIN
 create table merged_imdb as
 select
     movies.id as movieid,
-    actor_id as actorid,
-    name as name,
-    year as year,
+    actors.actor_id as actorid,
+    movies.name as movie_name,
+    movies.year as movie_year,
     movies_genres.genre as genre,
-    sex as actor_sex,
-    role as actor_role,
+    actors.sex as actor_sex,
+    roles.role as actor_role,
     round(rating, 2) as rating,
     rtrim(ltrim(
             concat_ws(' ',
