@@ -1,5 +1,7 @@
 use imdb;
 
+-- on this table we have no numercal-like values to validate with testing
+
 -- CDC table for updates and inserts on the roles table
 
 drop table if exists roles_audit_log;
@@ -44,6 +46,8 @@ BEGIN
 end$$
 DELIMITER ;
 
+-- trigger for UPDATEs
+
 drop trigger if exists roles_update_audit_trigger;
 
 delimiter $$
@@ -70,6 +74,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for DELETEs
 
 drop trigger if exists roles_delete_audit_trigger;
 

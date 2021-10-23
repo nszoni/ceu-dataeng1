@@ -1,15 +1,22 @@
 use imdb;
 
+-- Let's transform our data and load into a new table
+
+-- Ad-hoc transformations
+
+-- rank is a reserved keywork in mysql
 alter table movies
 RENAME column `rank` TO rating;
 
+-- to avoid ambugity
 alter table actors
 RENAME column gender TO sex;
 
+-- update values which are suspicious
 update `roles` set `role` = "unknown" where role = '""';
 update `movies` set `rating` = 8.2 where `name` = 'Batman Begins';
 
--- Let's transform our data and load into a new table
+-- Denormalizig the SF schema
 
 drop procedure if exists denormalizeimdb;
 
@@ -32,12 +39,12 @@ select
     round(rating, 2) as rating,
     rtrim(ltrim(
             concat_ws(' ',
-                coalesce(actors.first_name, ''),
+                coalesce(actors.first_name, ''), -- concat the actor names for clarity
                 coalesce(actors.last_name, '')
             ))) as actor_name,
     rtrim(ltrim(
             concat_ws(' ',
-                coalesce(directors.first_name, ''),
+                coalesce(directors.first_name, ''), -- concat the director names for clarity
                 coalesce(directors.last_name, '')
             ))) as director_name
 from

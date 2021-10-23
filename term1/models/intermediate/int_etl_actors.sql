@@ -90,7 +90,7 @@ create table actors_audit_log (
     primary key (id, dml_type, dml_timestamp)
 );
 
--- trigger for INSERTS
+-- trigger for INSERTs
 
 drop trigger if exists actors_insert_audit_trigger;
 
@@ -121,6 +121,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for UPDATEs
 
 drop trigger if exists actors_update_audit_trigger;
 
@@ -156,6 +158,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for DELETEs
 
 drop trigger if exists actors_delete_audit_trigger;
 

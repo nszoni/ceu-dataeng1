@@ -1,5 +1,7 @@
 use imdb;
 
+-- on this table we have no numercal-like values to validate with testing
+
 -- CDC table for updates and inserts on the directors table
 
 drop table if exists directors_audit_log;
@@ -14,7 +16,7 @@ create table directors_audit_log (
     primary key (id, dml_type, dml_timestamp)
 );
 
--- trigger for INSERTS
+-- trigger for INSERTs
 
 drop trigger if exists directors_insert_audit_trigger;
 
@@ -43,6 +45,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for UPDATEs
 
 drop trigger if exists directors_update_audit_trigger;
 
@@ -74,6 +78,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for DELETEs
 
 drop trigger if exists directors_delete_audit_trigger;
 

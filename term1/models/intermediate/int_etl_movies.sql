@@ -121,6 +121,8 @@ BEGIN
 end$$
 DELIMITER ;
 
+-- trigger for UPDATEs
+
 drop trigger if exists movies_update_audit_trigger;
 
 delimiter $$
@@ -153,6 +155,8 @@ BEGIN
     );
 end$$
 DELIMITER ;
+
+-- trigger for DELETEs
 
 drop trigger if exists movies_delete_audit_trigger;
 

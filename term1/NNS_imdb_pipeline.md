@@ -53,16 +53,9 @@ I exported the tables as `.TSV` files from the database and [generated DDL scrip
 
 All the source files can be found under `data/` and pictures presented here under `pictures/`
 
-*Note: The generation saved me a significant time in defining column names and datatypes.*
+*Note: The generation saved me a significant time in defining column names and datatypes, constraint and indexes.*
 
 Having the data and table structure on my computer, I created tables with from generated schemas in my local MySQL instance with the `01_create_tables.sql` script , and loaded the local flat files with the `02_extract.sql` script. You can find these under `models/stg/`
-
-### Preliminary Cleaning
-
-- Interestingly, *Batman Begins (2005)* has a 0 average rating, while it is currently rated 8.2 on imdb. Let's manually update that entry!
-- Some roles are has values of `""` which should be `'unknown'` instead.
-- Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
-- Rename the column `gender` to `sex` in the actors table to avoid unambiguity
 
 <div id='business'/>
 
@@ -108,6 +101,11 @@ IGNORE 1 LINES;
 ```
 
 ### Transform
+
+- Interestingly, *Batman Begins (2005)* has a 0 average rating, while it is currently rated 8.2 on imdb. Let's manually update that entry!
+- Some roles are has values of `""` which should be `'unknown'` instead.
+- Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
+- Rename the column `gender` to `sex` in the actors table to avoid unambiguity
 
 To denormalize the Snowflake Schema and make a few transformations, I inserted the following SELECT statement to a body of a stored procedure - `denormalizeimdb()`
 
@@ -208,6 +206,12 @@ Therefore, the flow is the following:
 - Manual ingestion at a stage level
 - Automatic daily transformations and loading with ad hoc triggering and CDC logging
 
+The final for of database can be described with the following chart:
+
+<p align="center">
+<img src="./pictures/imdb_final.png" alt="drawing" width="5500">
+</p>
+
 <div id='dq'/>
 
 ## Data Quality Checks (Testing)
@@ -274,3 +278,5 @@ term1
 ### SQL and Markdown Linters
 
 To keep consistent SQL and Markdown conventions and pretty formatting, I used [sqlfluff](https://github.com/sqlfluff/sqlfluff) to lint all my .sql files and used the a VSCode Extension called [markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint) to follow the standard styling.
+
+**Make sure to run the queries found under `/models/mart/mart_analytical_queries.sql` to get your answers on the business questions!**

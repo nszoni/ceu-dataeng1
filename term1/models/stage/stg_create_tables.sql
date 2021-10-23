@@ -3,7 +3,6 @@ IMDB reduced size dataset: https://relational.fit.cvut.cz/dataset/IMDb
 Dataset was stored on a MariaDB server from which I extracted the data as TSV files
 */
 
--- create database
 -- create database imdb;
 
 use imdb;
@@ -18,7 +17,7 @@ drop table if exists movies_directors;
 drop table if exists movies_genres;
 drop table if exists roles;
 
--- Below DDL was retrieved from the source MariaDB database
+-- Below DDL was retrieved from the source MariaDB database with the built-in DataGrip DDL generator
 
 create table actors
 (
