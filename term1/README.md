@@ -22,6 +22,12 @@ Although IMDb itself offers open data, I chose to look for a smaller sample.
 
 Thereupon, I found a [site](https://relational.fit.cvut.cz/search) which has a huge collection of dataset on their public `MariaDB` database.
 
+
+
+<div id='operational'/>
+
+## Operational Layer
+
 I decided to go with the `imdb_small` dataset which has the following ERD:
 
 <br/>
@@ -32,9 +38,9 @@ I decided to go with the `imdb_small` dataset which has the following ERD:
 
 <br/>
 
-### Additional informations
+As you can see, it has a Snowflake schema as dimension tables have subdimensions extending outwardly. It is more complex than the Starchema, but it has less data redundancy and comes with less storage. In essence, it is a drilldown of the Starchema, so a couple more joins should do the normalization.
 
-As you can see the ERD represenets a a Snowflake Schema, therefore it has a more complex normalization and I should do more joins to get to the analytical layer.
+### Additional informations
 
 - 36 distinct movies
 - 1907 actors
@@ -42,10 +48,6 @@ As you can see the ERD represenets a a Snowflake Schema, therefore it has a more
 - 16 genres
 - 1695 roles
 - from 20 different years
-
-<div id='operational'/>
-
-## Operational Layer
 
 I exported the tables as `.tsv` files from the database and [generated DDL scripts](https://www.jetbrains.com/datagrip/features/generation.html) for each table within DataGrip.
 
@@ -57,22 +59,6 @@ Having the data and table structure on my computer, I created tables with from g
 
 - Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
 - Rename the column `gender` to `sex` in the actors table to avoid unambiguity
-
-File loading was a bit messy, becuase I wanted to achieve the least repetition of `LOAD DATA LOCAL INFILE` command while allowing the user for replacing their absolute path at ease. Hence, I wrote a `shell` script for bulk loading the data which takes all the necessary credentials as user input, plus working directory, truncates all the existing tables, and loads the data by iterating through all the `.tsv` files in the given folder.
-
-*The script will load to the `imdb` schema in default*
-
-Example:
-
-```{bash}
-$bash stg_bulk_extract.sh
-
-Enter source data folder (absolute path): /path/to/data/
-Enter MySQL username: yourusername
-Enter Password: yourpwd
-```
-
-Please note, that it is insecure to supply credentials inside your terminal (even though the input is hidden)! An alternative way would be to write an extra mysql config file consisting all of those with read-only to the root user (chmod 600). To do that see [this](https://www.serverlab.ca/tutorials/linux/database-servers/how-to-create-a-credential-file-for-mysql/) article. I did not set this up as it would have complicated things much more and I tried to be as simple as possible akin to this being a school-project.
 
 <div id='business'/>
 
@@ -109,14 +95,21 @@ I merged together all the dimension and fact tables to a joint table, and concat
 
 ### Extract
 
-Data is extracted from local source files with the following template to the table generated with custom DDL.
+The extract phase was a bit messy, becuase I wanted to achieve the least repetition of `LOAD DATA LOCAL INFILE` command while allowing the user for replacing their absolute path at ease. Hence, I wrote a `shell` script for bulk loading the data which takes all the necessary credentials as user input, plus working directory, truncates all the existing tables, and loads the data by iterating through all the `.tsv` files in the given folder.
 
-```{sql}
-LOAD DATA LOCAL INFILE '/Users/nszoni/Desktop/repos/ceu-dataeng1/term1/data/imdb_small_actors.tsv'
-INTO TABLE actors
-COLUMNS TERMINATED BY '\t'
-IGNORE 1 LINES;
+*The script will load to the `imdb` schema in default*
+
+Example:
+
+```{bash}
+$bash stg_bulk_extract.sh
+
+Enter source data folder (absolute path): /path/to/data/
+Enter MySQL username: yourusername
+Enter Password: yourpwd
 ```
+
+Please note, that it is insecure to supply credentials inside your terminal (even though the input is hidden)! An alternative way would be to write an extra mysql config file consisting all of those with read-only to the root user (chmod 600). To do that see [this](https://www.serverlab.ca/tutorials/linux/database-servers/how-to-create-a-credential-file-for-mysql/) article. I did not set this up as it would have complicated things much more and I tried to be as simple as possible akin to this being a school-project.
 
 ### Transform
 
