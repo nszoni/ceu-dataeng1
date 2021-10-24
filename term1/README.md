@@ -197,7 +197,7 @@ Testing is inevitable when going into the production environment and data trustw
 
 To test the new incoming data, I set up a few triggers scanning for data anomaly.
 
-1. Ratings should be in the interval of 1 to 5 - `before_movie_[insert/update]_movieRating`
+1. Ratings should be in the interval of 1 to 10 - `before_movie_[insert/update]_movieRating`
 2. Year should not be negative or in the future (greater than the current year) - `before_movie_[insert/update]_movieYear`
 3. Sex (not gender!) of the actors should be binary (either Male of Female) - `before_actors_[insert/update]_sexInSet`
 4. film_count field should not be negative - `before_actors_[insert/update]_filmCountIsNegative`
