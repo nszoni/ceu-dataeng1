@@ -9,7 +9,7 @@
 3. [Analytics (Business Definitions)](#business)
 4. [Denormalization](#denorm)
 5. [ETL Pipeline](#etl)
-6. [Extras](ex)
+6. [Extras](#ex)
 7. [Project Delivery](#delivery)
 
 <div id='introduction'/>
@@ -188,7 +188,9 @@ As a plus, I also created a composite index on the `movieid` and `actorid` colum
 
 <div id='ex'/>
 
-## Data Quality Checks (Testing)
+## Extras
+
+### Data Quality Checks (Testing)
 
 Testing is inevitable when going into the production environment and data trustworthyness.
 
@@ -250,9 +252,9 @@ Expected behavior when updating a row:
 <img src="./pictures/cdc.png" alt="drawing" width="5500">
 </p>
 
-<div id='delivery'/>
-
 *Note: demo DML queries are included in the script*
+
+<div id='delivery'/>
 
 ## Project Delivery
 
