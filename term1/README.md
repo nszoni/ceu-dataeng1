@@ -47,7 +47,7 @@ As you can see the ERD represenets a a Snowflake Schema, therefore it has a more
 
 ## Operational Layer
 
-I exported the tables as `.TSV` files from the database and [generated DDL scripts](https://www.jetbrains.com/datagrip/features/generation.html) for each table within DataGrip.
+I exported the tables as `.tsv` files from the database and [generated DDL scripts](https://www.jetbrains.com/datagrip/features/generation.html) for each table within DataGrip.
 
 All the source files can be found under `data/` and pictures generated from DataGrip presented here under `pictures/`
 
@@ -58,27 +58,21 @@ Having the data and table structure on my computer, I created tables with from g
 - Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
 - Rename the column `gender` to `sex` in the actors table to avoid unambiguity
 
-File loading was a bit messy, becuase I wanted to achieve the least repetition of `LOAD DATA LOCAL INFILE` command while allowing the user for replacing their absolute path at ease. Hence, I wrote a `shell` script for bulk loading the data which takes all the necessary credentials, plus working directory, truncates all the existing tables, and loads the data by iterating through all the files in the `data/` folder.
+File loading was a bit messy, becuase I wanted to achieve the least repetition of `LOAD DATA LOCAL INFILE` command while allowing the user for replacing their absolute path at ease. Hence, I wrote a `shell` script for bulk loading the data which takes all the necessary credentials as user input, plus working directory, truncates all the existing tables, and loads the data by iterating through all the `.tsv` files in the given folder.
 
-Make sure to edit the script according to your needs:
+*The script will load to the `imdb` schema in default*
+
+Example:
 
 ```{bash}
-#!/bin/bash
+$bash stg_bulk_extract.sh
 
-dir=/path/to/the/directory/where/the/data//is/stored
-user=root
-password=yourpassword
-database=imdb
-
-...
-```
-Run the script:
-
-```
-bash stg_bulk_extract.sh
+Enter source data folder (absolute path): /path/to/data/
+Enter MySQL username: yourusername
+Enter Password: yourpwd
 ```
 
-Please note, that it is insecure to supply credentials inside a script! An alternative way would be to write an extra mysql config file consisting all of those with read-only to the root user (chmod 600). To do that see [this](https://www.serverlab.ca/tutorials/linux/database-servers/how-to-create-a-credential-file-for-mysql/) article. I did not set this up as it would have complicated things much more and I tried to be as simple as possible akin to this being a school-project.
+Please note, that it is insecure to supply credentials inside your terminal (even though the input is hidden)! An alternative way would be to write an extra mysql config file consisting all of those with read-only to the root user (chmod 600). To do that see [this](https://www.serverlab.ca/tutorials/linux/database-servers/how-to-create-a-credential-file-for-mysql/) article. I did not set this up as it would have complicated things much more and I tried to be as simple as possible akin to this being a school-project.
 
 <div id='business'/>
 

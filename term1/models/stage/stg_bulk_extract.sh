@@ -2,14 +2,15 @@
 
 # this shell script loads all the necessary data for you.
 
-# Please set your credentials and base directory with the tsvs!
+# User input credentials
+ 
+read -p "Enter source data folder (absolute path): " dir
 
-dir=/Users/nszoni/Desktop/repos/ceu-dataeng1/term1/data/
-user=root
-password=admin
+read -p "Enter MySQL username: " user
+
+read -s -p "Enter Password: "  password
+
 database=imdb
-
-echo "WARNING! Ideally we would store our credentials in a my.cnf file or and environmental variable used by mysql for security reasons."
 
 # truncate db
 
