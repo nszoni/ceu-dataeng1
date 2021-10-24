@@ -5,36 +5,40 @@ Dataset was stored on a MariaDB server from which I extracted the data as TSV fi
 
 -- create database imdb;
 
-use imdb;
+USE imdb;
 
 -- drop existing tables
 
-drop table if exists actors;
-drop table if exists directors;
-drop table if exists directors_genres;
-drop table if exists movies;
-drop table if exists movies_directors;
-drop table if exists movies_genres;
-drop table if exists roles;
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS actors;
+DROP TABLE IF EXISTS directors;
+DROP TABLE IF EXISTS directors_genres;
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS movies_directors;
+DROP TABLE IF EXISTS movies_genres;
+DROP TABLE IF EXISTS roles;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Below DDL was retrieved from the source MariaDB database with the built-in DataGrip DDL generator
 
-create table actors
+CREATE TABLE actors
 (
-    id int default 0 not null
-    primary key,
-    first_name varchar(100) null,
-    last_name varchar(100) null,
-    gender char null,
-    film_count int default 0 null
+    id int DEFAULT 0 NOT NULL
+    PRIMARY KEY,
+    first_name varchar(100) NULL,
+    last_name varchar(100) NULL,
+    sex char NULL,
+    film_count int DEFAULT 0 NULL
 );
 
-create table directors
+CREATE TABLE directors
 (
-    id int default 0 not null
-    primary key,
-    first_name varchar(100) null,
-    last_name varchar(100) null
+    id int DEFAULT 0 NOT NULL
+    PRIMARY KEY,
+    first_name varchar(100) NULL,
+    last_name varchar(100) NULL
 );
 
 create table directors_genres
@@ -47,13 +51,13 @@ create table directors_genres
             on update cascade on delete cascade
 );
 
-create table movies
+CREATE TABLE movies
 (
-    id int default 0 not null
-    primary key,
-    `name` varchar(100) null,
-    `year` int null,
-    `rank` float null
+    `id` int DEFAULT 0 NOT NULL
+    PRIMARY KEY,
+    `name` varchar(100) NULL,
+    `year` int NULL,
+    `rating` float NULL
 );
 
 create table movies_directors
@@ -98,20 +102,20 @@ Creating index for id of tables.
 It is unrealistic at this point but makes the queries more performant when data starts to grow.
 */
 
-create index idx_director_id
-on directors_genres (director_id);
+CREATE INDEX idx_director_id
+ON directors_genres (director_id);
 
-create index idx_director_id
-on movies_directors (director_id);
+CREATE INDEX idx_director_id
+ON movies_directors (director_id);
 
-create index idx_movie_id
-on movies_directors (movie_id);
+CREATE INDEX idx_movie_id
+ON movies_directors (movie_id);
 
-create index movie_id
-on movies_genres (movie_id);
+CREATE INDEX movie_id
+ON movies_genres (movie_id);
 
-create index idx_actor_id
-on roles (actor_id);
+CREATE INDEX idx_actor_id
+ON roles (actor_id);
 
-create index idx_movie_id
-on roles (movie_id);
+CREATE INDEX idx_movie_id
+ON roles (movie_id);

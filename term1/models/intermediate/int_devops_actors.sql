@@ -1,100 +1,120 @@
-use imdb;
+USE imdb;
 
 -- Data Integrity Checks
-
--- whether sex is not in the given set
-
-drop procedure if exists sexinset
-
-delimiter $$
-CREATE PROCEDURE SexInSet()
-BEGIN
-	if (sex not in ('F', 'M')) then
-	signal sqlstate '42000'
-    set message_text = 'The given sex is not feasible, pls check it!';
-	end if;
-end;
-end$$
-DELIMITER ;
-
--- whether the film count is negative
-
-drop procedure if exists filmcountisnegative
-
-delimiter $$
-CREATE PROCEDURE FilmCountIsNegative()
-BEGIN
-	if (film_count < 0) then
-	signal sqlstate '42000'
-    set message_text = 'The number of films cannot be less than zero, pls check it!';
-	end if;
-end;
-end$$
-DELIMITER ;
 
 -- triggers for checking sex values out of set
 
 drop trigger if exists before_actors_insert_sexInSet;
 
-delimiter $$
+DELIMITER $$
 create trigger before_actors_insert_sexInSet before insert on actors
 for each row
 begin
-    call SexInSet();
+    if (new.sex not in ('F', 'M')) then
+	signal sqlstate '42000'
+    set message_text = 'The given sex is not feasible, pls check it!';
+	end if;
 end$$
 DELIMITER ;
 
 drop trigger if exists before_actors_update_sexInSet;
 
-delimiter $$
+DELIMITER $$
 create trigger before_actors_update_sexInSet before update on actors
 for each row
 begin
-    call SexInSet();
+    if (new.sex not in ('F', 'M')) then
+	signal sqlstate '42000'
+    set message_text = 'The given sex is not feasible, pls check it!';
+	end if;
 end$$
 DELIMITER ;
+
+/*
+-- Run this to demo sex testing
+
+INSERT INTO actors (
+    id,
+    first_name,
+    last_name,
+    sex,
+    film_count
+)
+VALUES (
+    '444',
+    'David',
+    'Lynch',
+    'N', #non-binary
+    '2'
+);
+ */
 
 -- triggers for checking negative film_count values
 
 drop trigger if exists before_actors_insert_filmCountIsNegative;
 
-delimiter $$
+DELIMITER $$
 create trigger before_actors_insert_filmCountIsNegative before insert on actors
 for each row
 begin
-    call FilmCountIsNegative();
+    if (new.film_count < 0) then
+	signal sqlstate '42000'
+    set message_text = 'The number of films cannot be less than zero, pls check it!';
+	end if;
 end$$
 DELIMITER ;
 
 drop trigger if exists before_actors_update_filmCountIsNegative;
 
-delimiter $$
+DELIMITER $$
 create trigger before_actors_update_filmCountIsNegative before update on actors
 for each row
 begin
-    call FilmCountIsNegative();
+    if (new.film_count < 0) then
+	signal sqlstate '42000'
+    set message_text = 'The number of films cannot be less than zero, pls check it!';
+	end if;
 end$$
 DELIMITER ;
 
+/*
+-- Run this to demo film_count testing
+
+INSERT INTO actors (
+    id,
+    first_name,
+    last_name,
+    sex,
+    film_count
+)
+VALUES (
+    '4454',
+    'David',
+    'Lynch',
+    'M',
+    '-2' #negative film count
+);
+ */
+
 -- CDC table for updates and inserts on the actors table
 
-drop table if exists actors_audit_log;
+DROP TABLE IF EXISTS actors_audit_log;
 
-create table actors_audit_log (
-    id BIGINT not null,
+CREATE TABLE actors_audit_log (
+    id BIGINT NOT NULL,
     old_row_data JSON,
     new_row_data JSON,
-    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') not null,
-    dml_timestamp timestamp not null,
-    dml_created_by VARCHAR(255) not null,
-    primary key (id, dml_type, dml_timestamp)
+    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    dml_timestamp TIMESTAMP NOT NULL,
+    dml_created_by VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 -- trigger for INSERTs
 
 drop trigger if exists actors_insert_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER actors_insert_audit_trigger
 AFTER INSERT ON actors FOR EACH ROW
 BEGIN
@@ -126,7 +146,7 @@ DELIMITER ;
 
 drop trigger if exists actors_update_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER actors_update_audit_trigger
 AFTER UPDATE ON actors FOR EACH ROW
 BEGIN
@@ -163,7 +183,7 @@ DELIMITER ;
 
 drop trigger if exists actors_delete_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER actors_delete_audit_trigger
 AFTER DELETE ON actors FOR EACH ROW
 BEGIN
@@ -192,15 +212,20 @@ end$$
 DELIMITER ;
 
 /*
--- rerun the Transformation as a trigger (materialized view in MySQL)
+-- Run this to demo to see CDC at work
 
-drop trigger if exists refresh_normalization_on_actors_dml;
-
-DELIMITER $$
-CREATE TRIGGER refresh_normalization_on_actors_dml
-    AFTER INSERT ON actors_audit_log FOR EACH ROW
-BEGIN
-    call DenormalizeImdb();
-END$$
-DELIMITER ;
+INSERT INTO actors (
+    id,
+    first_name,
+    last_name,
+    sex,
+    film_count
+)
+VALUES (
+    '7777',
+    'David',
+    'Lynch',
+    'M',
+    '33'
+);
  */

@@ -17,7 +17,7 @@ indent_unit = space
 lint_templated_tokens = True
 
 [sqlfluff:rules:L010]  # Keywords
-capitalisation_policy = lower
+capitalisation_policy = upper
 
 [sqlfluff:rules:L014]  # Unquoted identifiers
 extended_capitalisation_policy = lower

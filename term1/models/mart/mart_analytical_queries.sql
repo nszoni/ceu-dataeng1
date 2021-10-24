@@ -1,59 +1,84 @@
-use imdb;
+USE imdb;
 
 -- Analytical Queries
 
+-- Q: How many movies are in each genre? What is the distribution?
 
-
-with sub1 as(
-        select
-             name,
-             genre,
-             count(*) as n from merged_imdb group by name, genre) as a
-),
-
-sub2 as(
-        select
-             name,
-             year,
-             count(*) as n from merged_imdb group by name, year)
+WITH sub1 AS (
+    SELECT
+        movie_name,
+        genre,
+        count(*) AS n FROM merged_imdb GROUP BY movie_name, genre
 )
 
--- How many movies are in each genre? What is the distribution?
-
-select
+SELECT
     genre,
-    count(*) as n from sub
-group by genre
-order by n desc;
+    count(*) AS n FROM sub1
+GROUP BY genre
+ORDER BY n DESC;
 
--- What was the most successful year in movie production?
+-- A: Thrillers and Dramas are the most dominant
 
-select
-    year,
-    count(*) as n from sub2
-group by year
-order by n desc;
+-- Q: What was the most successful year in movie production?
 
--- Which actor/actress has appeared in the most roles?
+WITH sub2 AS (
+    SELECT
+        movie_name,
+        movie_year,
+        count(*) AS n FROM merged_imdb GROUP BY movie_name, movie_year
+)
 
-select
+SELECT
+    movie_year,
+    count(*) AS n FROM sub2
+GROUP BY movie_year
+ORDER BY n DESC;
+
+-- A: 1999 was the best year for filming!
+
+-- Q: Which actor/actress has appeared in the most roles?
+
+SELECT
     actor_name,
-    count(*) as n from merged_imdb group by actor_name order by n desc;
+    count(*) AS n FROM merged_imdb GROUP BY actor_name ORDER BY n DESC;
 
--- In which genre of movies we have the highest likelihood of seeing an actor/actress?
+-- A: Jim Cummings (probably because of multiple voices in animated series)
 
-select count(*) from merged_imdb group by actor_name, genre order by actor_name;
+-- Q: In which genre of movies we have the highest likelihood of seeing an actor/actress?
 
--- What is the average rating of movies directed by Quentin Tarantino?
+SELECT
+    actor_name,
+    genre,
+    count(*) AS n FROM merged_imdb GROUP BY actor_name, genre ORDER BY actor_name;
 
-select avg(a.subavg) as avg_rating from (
-select avg(rating) as subavg from merged_imdb where director_name = 'Quentin Tarantino' group by name) a
+-- Q: What is the average rating of movies directed by Quentin Tarantino?
+WITH tarantino AS (
+    SELECT avg(rating) AS subavg
+    FROM merged_imdb
+    WHERE director_name = 'Quentin Tarantino'
+    GROUP BY director_name
+)
 
--- Do we see a gender equity in terms of appearance in movies?
+SELECT subavg FROM tarantino;
 
-select actor_sex, count(*) as role_count from merged_imdb group by actor_sex
+-- A: His average rating was 8.4
 
--- List the directors who also include themselves in movies!
+-- Q: Do we see a gender equity in terms of appearance in movies?
 
-select name, actor_name, director_name from merged_imdb where actor_name = director_name group by name, actor_name, director_name
+SELECT
+    actor_sex,
+    count(*) AS role_count
+FROM merged_imdb
+GROUP BY actor_sex;
+
+-- A: Still much unbalanced as there are more than 3 times more male appearances!
+
+-- Q: List the directors who also include themselves in movies!
+
+SELECT
+    movie_name,
+    actor_name,
+    director_name
+FROM merged_imdb WHERE actor_name = director_name
+GROUP BY movie_name, actor_name, director_name
 

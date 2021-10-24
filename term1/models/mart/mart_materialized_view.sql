@@ -1,13 +1,15 @@
-use imdb;
+USE imdb;
 
 -- Event based stored procedure to create the materialized view
 -- Runs every day at 1AM
 
 SET GLOBAL event_scheduler = ON;
 
-delimiter $$
+drop event if exists materialized_imbd;
 
-CREATE EVENT event_name
+DELIMITER $$
+
+CREATE EVENT materialized_imbd
   ON SCHEDULE
     EVERY 1 DAY
     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
@@ -16,6 +18,7 @@ CREATE EVENT event_name
     	CALL DenormalizeImdb();
     	CREATE INDEX index_movie_actor
         ON merged_imdb(movieid, actorid);
+end;
 END$$
 DELIMITER ;
 

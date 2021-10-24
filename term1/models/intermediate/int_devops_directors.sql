@@ -1,26 +1,26 @@
-use imdb;
+USE imdb;
 
 -- on this table we have no numercal-like values to validate with testing
 
 -- CDC table for updates and inserts on the directors table
 
-drop table if exists directors_audit_log;
+DROP TABLE IF EXISTS directors_audit_log;
 
-create table directors_audit_log (
-    id BIGINT not null,
+CREATE TABLE directors_audit_log (
+    id BIGINT NOT NULL,
     old_row_data JSON,
     new_row_data JSON,
-    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') not null,
-    dml_timestamp timestamp not null,
-    dml_created_by VARCHAR(255) not null,
-    primary key (id, dml_type, dml_timestamp)
+    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    dml_timestamp TIMESTAMP NOT NULL,
+    dml_created_by VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id, dml_type, dml_timestamp)
 );
 
 -- trigger for INSERTs
 
 drop trigger if exists directors_insert_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER directors_insert_audit_trigger
 AFTER INSERT ON directors FOR EACH ROW
 BEGIN
@@ -50,7 +50,7 @@ DELIMITER ;
 
 drop trigger if exists directors_update_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER directors_update_audit_trigger
 AFTER UPDATE ON directors FOR EACH ROW
 BEGIN
@@ -83,7 +83,7 @@ DELIMITER ;
 
 drop trigger if exists directors_delete_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER directors_delete_audit_trigger
 AFTER DELETE ON directors FOR EACH ROW
 BEGIN
@@ -110,15 +110,16 @@ end$$
 DELIMITER ;
 
 /*
--- rerun the Transformation as a trigger (materialized view in MySQL)
+-- Run this to demo see CDC at work
 
-drop trigger if exists refresh_normalization_on_directors_dml;
-
-DELIMITER $$
-CREATE TRIGGER refresh_normalization_on_directors_dml
-    AFTER INSERT ON directors_audit_log FOR EACH ROW
-BEGIN
-    call DenormalizeImdb();
-END$$
-DELIMITER ;
+INSERT INTO movies (
+    id,
+    first_name,
+    last_name
+)
+VALUES (
+    '9999',
+    'David',
+    'Lynch'
+);
  */

@@ -9,7 +9,7 @@
 3. [Analytics (Business Definitions)](#business)
 4. [Denormalization](#denorm)
 5. [ETL Pipeline](#etl)
-6. [Data Quality Checks](#dq)
+6. [Extras](ex)
 7. [Project Delivery](#delivery)
 
 <div id='introduction'/>
@@ -55,11 +55,36 @@ All the source files can be found under `data/` and pictures presented here unde
 
 *Note: The generation saved me a significant time in defining column names and datatypes, constraint and indexes.*
 
-Having the data and table structure on my computer, I created tables with from generated schemas in my local MySQL instance with the `01_create_tables.sql` script , and loaded the local flat files with the `02_extract.sql` script. You can find these under `models/stage/`
+Having the data and table structure on my computer, I created tables with from generated schemas in my local MySQL instance with the `stg_create_tables.sql` script.
+
+- Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
+- Rename the column `gender` to `sex` in the actors table to avoid unambiguity
+
+File loading was a bit messy, becuase I wanted to achieve the least repetition of `LOAD DATA LOCAL INFILE` command while allowing the user for replacing their absolute path at ease. Hence, I wrote a `shell` script for bulk loading the data which takes all the necessary credentials, plus working directory, truncates all the existing tables, and loads the data by iterating through all the files in the `data/` folder.
+
+Make sure to edit the script according to your needs:
+
+```{bash}
+#!/bin/bash
+
+dir=/path/to/the/directory/where/the/data//is/stored
+user=root
+password=yourpassword
+database=imdb
+
+...
+```
+Run the script:
+
+```
+bash stg_bulk_extract.sh
+```
+
+Please note, that it is insecure to supply credentials inside a script! An alternative way would be to write an extra mysql config file consisting all of those with read-only to the root user (chmod 600). To do that see [this](https://www.serverlab.ca/tutorials/linux/database-servers/how-to-create-a-credential-file-for-mysql/) article. I did not set this up as it would have complicated things much more and I tried to be as simple as possible akin to this being a school-project.
 
 <div id='business'/>
 
-## Analytics (Business Definitions) <a name="business"></a>
+## Analytics (Business Questions) <a name="business"></a>
 
 The final form of the data mart should be able to answer the following business questions.
 
@@ -77,7 +102,7 @@ The final form of the data mart should be able to answer the following business 
 
 ## Denormalization <a name="denorm"></a>
 
-I merged together all the dimension and fact tables to a joint table, and concatenated the first and last names of the actors, directors. Now, each entity represents an "actor/actress in a movie in a certain role" (assuming that an actor/actress can have multiple roles in a movie). It should be enough to answer the questions mentioned above (In a later section I will demo this).
+I merged together all the dimension and fact tables to a joint table, and concatenated the first and last names of the actors, directors. Now, each entity represents an "actor/actress in a movie in a certain role" (assuming that an actor/actress can have multiple roles in a movie). It should be enough to answer the questions mentioned above (I wrote sample analytical queries which you can run in `mart_analytical_queries.sql`).
 
 <br/>
 <p align="center">
@@ -102,10 +127,10 @@ IGNORE 1 LINES;
 
 ### Transform
 
-- Interestingly, *Batman Begins (2005)* has a 0 average rating, while it is currently rated 8.2 on imdb. Let's manually update that entry!
+See: `int_transform.sql`
+
+- Interestingly, *Batman Begins (2005)* and *Pirates of the Carribbean (2003)* has a 0 average rating, while it is currently rated 8.2 and 8.0 on imdb, respectively. Let's manually update those entries!
 - Some roles are has values of `""` which should be `'unknown'` instead.
-- Since `rank` is a reserved keyword in SQL, I will replace it with the name `rating`.
-- Rename the column `gender` to `sex` in the actors table to avoid unambiguity
 
 To denormalize the Snowflake Schema and make a few transformations, I inserted the following SELECT statement to a body of a stored procedure - `denormalizeimdb()`
 
@@ -148,7 +173,7 @@ inner join
 Loading will be performed upon transformation as I created a separate table for the data mart, and implemented a scheduled refresh of the table with the following query under `models/mart/mart_materialized_view.sql`. For the analytical layer where a lot of ad hoc query will be performed, it is indisposable to have a materialized view instead of the standard view.
 
 ```{sql}
-CREATE EVENT event_name
+CREATE EVENT materialized_imdb
   ON SCHEDULE
     EVERY 1 DAY
     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
@@ -159,7 +184,31 @@ CREATE EVENT event_name
         ON merged_imdb(movieid, actorid);
 ```
 
-As a plus, I also created a composite index on the `movieid` and `actorid` columns.
+As a plus, I also created a composite index on the `movieid` and `actorid` columns for better query performance.
+
+<div id='ex'/>
+
+## Data Quality Checks (Testing)
+
+Testing is inevitable when going into the production environment and data trustworthyness.
+
+To test the new incoming data, I set up a few triggers scanning for data anomaly.
+
+1. Ratings should be in the interval of 1 to 5 - `before_movie_[insert/update]_movieRating`
+2. Year should not be negative or in the future (greater than the current year) - `before_movie_[insert/update]_movieYear`
+3. Sex (not gender!) of the actors should be binary (either Male of Female) - `before_actors_[insert/update]_sexInSet`
+4. film_count field should not be negative - `before_actors_[insert/update]_filmCountIsNegative`
+
+```{sql}
+create trigger before_movie_insert_movieRating before insert on movies
+for each row
+begin
+    if ((new.rating < 1) OR (new.rating > 10)) then
+	signal sqlstate '42000'
+    set message_text = 'The rating of the movie is out of bounds, pls check it!';
+	end if;
+```
+*Note: demo DML queries are included in the script*
 
 ### Change Data Capture (CDC)
 
@@ -201,45 +250,25 @@ Expected behavior when updating a row:
 <img src="./pictures/cdc.png" alt="drawing" width="5500">
 </p>
 
-Therefore, the flow is the following:
+<div id='delivery'/>
 
-- Manual ingestion at a stage level
-- Automatic daily transformations and loading with ad hoc triggering and CDC logging
+*Note: demo DML queries are included in the script*
+
+## Project Delivery
+
+All in all, the flow is the following:
+
+**1. Manual ingestion at a stage level with bulk shell script**
+
+**2. Automatic daily transformations**
+
+**3. Loading with ad hoc triggering, testing and CDC logging**
 
 The final for of database can be described with the following chart:
 
 <p align="center">
 <img src="./pictures/imdb_final.png" alt="drawing" width="700">
 </p>
-
-<div id='dq'/>
-
-## Data Quality Checks (Testing)
-
-Testing is inevitable when going into the production environment and data trustworthyness.
-
-To test the new incoming data, I set up a few triggers scanning for data anomaly.
-
-1. Ratings should be in the interval of 1 to 5 - `before_movie_[insert/update]_movieRating`
-2. Year should not be negative or in the future (greater than the current year) - `before_movie_[insert/update]_movieYear`
-3. Sex (not gender!) of the actors should be binary (either Male of Female) - `before_actors_[insert/update]_sexInSet`
-4. film_count field should not be negative - `before_actors_[insert/update]_filmCountIsNegative`
-
-```{sql}
-CREATE PROCEDURE RatingOutOfBounds()
-BEGIN
-    if (rating < 1) OR (rating > 5) then
- signal sqlstate '42000'
-    set message_text = 'The rating of the movie is out of bounds, pls check it!';
- end if;
-end;
-```
-
-*Note: Test triggers are calling common stored procedures for the sake of Don't Repeat Yourself (DRY) code.*
-
-<div id='delivery'/>
-
-## Project Delivery
 
 ### Structure
 
@@ -277,6 +306,6 @@ term1
 
 ### SQL and Markdown Linters
 
-To keep consistent SQL and Markdown conventions and pretty formatting, I used [sqlfluff](https://github.com/sqlfluff/sqlfluff) to lint all my .sql files and used the a VSCode Extension called [markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint) to follow the standard styling.
+To keep consistent SQL and Markdown conventions and pretty formatting, I used [sqlfluff](https://github.com/sqlfluff/sqlfluff) to lint all my .sql files and used the a VSCode Extension called [markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint) to follow the standard styling. sqlfluff formatting options can be found under `term1/.sqlfluff`
 
 **Make sure to run the queries found under `/models/mart/mart_analytical_queries.sql` to get your answers on the business questions!**

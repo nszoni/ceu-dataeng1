@@ -1,27 +1,27 @@
-use imdb;
+USE imdb;
 
--- on this table we have no numercal-like values to validate with testing
+-- on this table we have no numerical-like values to validate with testing
 
 -- CDC table for updates and inserts on the roles table
 
-drop table if exists roles_audit_log;
+DROP TABLE IF EXISTS roles_audit_log;
 
-create table roles_audit_log (
-    actorid BIGINT not null,
-    movieid BIGINT not null,
+CREATE TABLE roles_audit_log (
+    actorid BIGINT NOT NULL,
+    movieid BIGINT NOT NULL,
     old_row_data VARCHAR(100),
     new_row_data VARCHAR(100),
-    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') not null,
-    dml_timestamp timestamp not null,
-    dml_created_by VARCHAR(255) not null,
-    primary key (actorid, movieid, dml_type, dml_timestamp)
+    dml_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    dml_timestamp TIMESTAMP NOT NULL,
+    dml_created_by VARCHAR(255) NOT NULL,
+    PRIMARY KEY (actorid, movieid, dml_type, dml_timestamp)
 );
 
 -- trigger for INSERTS
 
 drop trigger if exists roles_insert_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER roles_insert_audit_trigger
 AFTER INSERT ON roles FOR EACH ROW
 BEGIN
@@ -50,7 +50,7 @@ DELIMITER ;
 
 drop trigger if exists roles_update_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER roles_update_audit_trigger
 AFTER UPDATE ON roles FOR EACH ROW
 BEGIN
@@ -79,7 +79,7 @@ DELIMITER ;
 
 drop trigger if exists roles_delete_audit_trigger;
 
-delimiter $$
+DELIMITER $$
 CREATE TRIGGER roles_delete_audit_trigger
 AFTER DELETE ON roles FOR EACH ROW
 BEGIN
@@ -105,15 +105,16 @@ end$$
 DELIMITER ;
 
 /*
--- rerun the Transformation as a trigger (materialized view in MySQL)
+-- Run this to demo see CDC at work
 
-drop trigger if exists refresh_normalization_on_roles_dml;
-
-DELIMITER $$
-CREATE TRIGGER refresh_normalization_on_roles_dml
-    AFTER INSERT ON roles_audit_log FOR EACH ROW
-BEGIN
-    call DenormalizeImdb();
-END$$
-DELIMITER ;
+INSERT INTO movies (
+    actor_id,
+    movie_id,
+    role
+)
+VALUES (
+    '9999',
+    '1000',
+    'Ballboy'
+);
  */
