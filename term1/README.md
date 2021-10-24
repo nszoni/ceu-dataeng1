@@ -9,7 +9,7 @@
 3. [Analytics (Business Definitions)](#business)
 4. [Denormalization](#denorm)
 5. [ETL Pipeline](#etl)
-6. [Extras](#ex)
+6. [DevOps](#ex)
 7. [Project Delivery](#delivery)
 
 <div id='introduction'/>
@@ -188,7 +188,9 @@ As a plus, I also created a composite index on the `movieid` and `actorid` colum
 
 <div id='ex'/>
 
-## Extras
+## DevOps
+
+See: `int_devops_tablename.sql`
 
 ### Data Quality Checks (Testing)
 
