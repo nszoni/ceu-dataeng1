@@ -279,30 +279,32 @@ To deliver my project, I followed the following tree system
 
 ```{bash}
 term1
-├── NNS_imdb_pipeline.md
+├── README.md
 ├── data
-│   ├── imdb_small_actors.tsv
-│   ├── imdb_small_directors.tsv
-│   ├── imdb_small_directors_genres.tsv
-│   ├── imdb_small_movies.tsv
-│   ├── imdb_small_movies_directors.tsv
-│   ├── imdb_small_movies_genres.tsv
-│   └── imdb_small_roles.tsv
+│   ├── actors.tsv
+│   ├── directors.tsv
+│   ├── directors_genres.tsv
+│   ├── movies.tsv
+│   ├── movies_directors.tsv
+│   ├── movies_genres.tsv
+│   └── roles.tsv
 ├── models
 │   ├── intermediate
-│   │   ├── int_denormalize.sql
-│   │   ├── int_etl_actors.sql
-│   │   ├── int_etl_directors.sql
-│   │   ├── int_etl_movies.sql
-│   │   └── int_etl_roles.sql
+│   │   ├── int_devops_actors.sql
+│   │   ├── int_devops_directors.sql
+│   │   ├── int_devops_movies.sql
+│   │   ├── int_devops_roles.sql
+│   │   └── int_transform.sql
 │   ├── mart
 │   │   ├── mart_analytical_queries.sql
 │   │   └── mart_materialized_view.sql
 │   └── stage
+│       ├── stg_bulk_extract.sh
 │       ├── stg_create_tables.sql
 │       └── stg_extract.sql
 └── pictures
     ├── cdc.png
+    ├── imdb_final.png
     ├── imdb_small_erd.png
     └── merged_imdb.png
  ```
