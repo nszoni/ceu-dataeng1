@@ -3,7 +3,7 @@ IMDB reduced size dataset: https://relational.fit.cvut.cz/dataset/IMDb
 Dataset was stored on a MariaDB server from which I extracted the data as TSV files
 */
 
-create database imdb;
+-- create database imdb;
 
 use imdb;
 
